@@ -127,7 +127,7 @@ public class FlutterOverlayWindowPlugin implements
         } else if(call.method.equals("sharedData")) {
             SharedPreferences prefs =  context.getSharedPreferences("app_share",Context.MODE_PRIVATE);
             final String data = prefs.getString("payload","{}");
-            prefs.edit().remove("app_share").apply();
+            prefs.edit().remove("payload").apply();
             result.success(data);
         } else if (call.method.equals("moveOverlay")) {
             int x = call.argument("x");
