@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
@@ -112,9 +113,22 @@ public class FlutterOverlayWindowPlugin implements
         } else if (call.method.equals("isOverlayActive")) {
             result.success(OverlayService.isRunning);
             return;
-        } else if (call.method.equals("isOverlayActive")) {
-            result.success(OverlayService.isRunning);
-            return;
+        } else if(call.method.equals("startMainApp")) {
+            final String data = call.argument("payload");
+            final String activity =  context.getPackageName();
+            Intent intent = new Intent();
+            intent.setClassName(activity,activity + ".MainActivity");
+            intent.putExtra("payload",data);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            SharedPreferences prefs =  context.getSharedPreferences("app_share",Context.MODE_PRIVATE);
+            prefs.edit().putString("payload",data).apply();
+            context.startActivity(intent);
+            result.success(true);
+        } else if(call.method.equals("sharedData")) {
+            SharedPreferences prefs =  context.getSharedPreferences("app_share",Context.MODE_PRIVATE);
+            final String data = prefs.getString("payload","{}");
+            prefs.edit().remove("app_share").apply();
+            result.success(data);
         } else if (call.method.equals("moveOverlay")) {
             int x = call.argument("x");
             int y = call.argument("y");
@@ -139,6 +153,8 @@ public class FlutterOverlayWindowPlugin implements
         channel.setMethodCallHandler(null);
         WindowSetup.messenger.setMessageHandler(null);
     }
+
+
 
     @Override
     public void onAttachedToActivity(@NonNull ActivityPluginBinding binding) {
